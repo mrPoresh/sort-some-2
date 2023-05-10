@@ -1,0 +1,3 @@
+/home/tony/PWR/Cplusplus/sort-some-2/build/CMakeFiles/my_project.dir
+/home/tony/PWR/Cplusplus/sort-some-2/build/CMakeFiles/edit_cache.dir
+/home/tony/PWR/Cplusplus/sort-some-2/build/CMakeFiles/rebuild_cache.dir

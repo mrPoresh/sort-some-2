@@ -1,1 +1,1 @@
-/usr/bin/c++ CMakeFiles/my_project.dir/src/main.cpp.o -o my_project  -lpthread 
+/usr/bin/c++ CMakeFiles/my_project.dir/src/main.cpp.o CMakeFiles/my_project.dir/src/core.cpp.o -o my_project  -lpthread 

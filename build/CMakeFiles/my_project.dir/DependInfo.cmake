@@ -8,6 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/home/tony/PWR/Cplusplus/sort-some-2/src/core.cpp" "CMakeFiles/my_project.dir/src/core.cpp.o" "gcc" "CMakeFiles/my_project.dir/src/core.cpp.o.d"
   "/home/tony/PWR/Cplusplus/sort-some-2/src/main.cpp" "CMakeFiles/my_project.dir/src/main.cpp.o" "gcc" "CMakeFiles/my_project.dir/src/main.cpp.o.d"
   )
 

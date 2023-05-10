@@ -23,7 +23,7 @@ set(CMAKE_CXX_STANDARD 17)
 # Add source files
 set(SOURCES 
     src/main.cpp
-    # src/core.cpp
+    src/core.cpp
 )
 
 # Add header files
@@ -31,7 +31,7 @@ set(HEADERS
     inc/overload.hh
     inc/vector.hh
     inc/object.hh
-    #inc/core.hh
+    inc/core.hh
 )
 
 # Add operator header files

@@ -84,3 +84,4 @@ void Core::writeDataInFile(const std::string& filePath, Object<Variant>* object)
         return;
     };
 };
+

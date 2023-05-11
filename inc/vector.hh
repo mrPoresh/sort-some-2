@@ -8,15 +8,19 @@ class Vector {
 public:
     Vector() : _size(0), _capacity(0), _data(nullptr) {};
 
-    Vector(std::initializer_list<T> values) : _size(values.size()), _capacity(values.size()), _data(new T[values.size()]) {    //  constructor for {...}
-        std::move(values.begin(), values.end(), _data);
-    };
+    Vector(std::initializer_list<T> values) : _size(values.size()), _capacity(values.size()), _data(reinterpret_cast<T*>(new char[values.size() * sizeof(T)])) {    //  constructor for {...}
+        auto it = values.begin();
 
-    Vector(Vector& other) : _size(other._size), _capacity(other._capacity), _data(new T[other._capacity]) {                    //   copy
+        for (std::size_t i = 0; i < _size; ++i) {
+            new (_data + i) T(*it++);
+        }
+    };
+// i known what im doing
+    Vector(Vector& other) : _size(other._size), _capacity(other._capacity), _data(reinterpret_cast<T*>(new char[other._capacity * sizeof(T)])) {//   copy
         for (std::size_t i = 0; i < _size; ++i) {
             new (_data + i) T(other[i]);
         }
-    }
+    };
 
     Vector(Vector<T>&& other) noexcept : _size(other._size), _capacity(other._capacity), _data(other._data) {                   //  move constructor
         other._size = 0;
@@ -35,7 +39,6 @@ public:
     void reserve(std::size_t capacity);                             //  reserve capacity for the vector
     void pushBack(const T& value);
     void popBack();
-    void print(std::ostream& os = std::cout) const;
 
     T* begin() const;
     T* end() const;
@@ -46,7 +49,6 @@ private:
     std::size_t _size;                //  number of elements in my vector  //  64-bit unsigned integer
     std::size_t _capacity;            //  maximum number of elements that vector can hold
 
-    void allocate(size_t item);    // alloc memory for item
     void deallocate();
 };
 
@@ -56,18 +58,18 @@ std::size_t Vector<T>::size() const {
 };
 
 template <typename T>
-void Vector<T>::allocate(std::size_t newCapacity) {
+void Vector<T>::reserve(std::size_t newCapacity) {
     if (newCapacity <= _capacity) {
         return;                                     // check if need
     }
     
-    T* newData = new T[newCapacity];                // allocate new memory block
+    T* newData = reinterpret_cast<T*>(new char[newCapacity* sizeof(T)]);  // allocate new memory block
     
     for (std::size_t i = 0; i < _size; ++i) {       // in new block
-        newData[i] = std::move(_data[i]);
+        new (newData + i) T(std::move(_data[i]));
     }
     
-    delete[] _data;
+    deallocate();
     
     _data = newData;
     _capacity = newCapacity;
@@ -76,11 +78,13 @@ void Vector<T>::allocate(std::size_t newCapacity) {
 template<typename T>
 void Vector<T>::deallocate() {
     if (_data) {       
-        delete[] _data;
+        for (std::size_t i = 0; i < _size; ++i) {
+            _data[i].~T();
+        }
+
+        delete[] reinterpret_cast<char*>(_data);
     }
 
-    _size = 0;
-    _capacity = 0;
     _data = nullptr;
 };
 
@@ -98,6 +102,7 @@ Vector<T>& Vector<T>::operator=(const Vector& other) {
     if (this != &other) {
         deallocate();
         reserve(other._capacity);
+
         for (std::size_t i = 0; i < other._size; ++i) {
             new (_data + i) T(other._data[i]);
         }
@@ -116,33 +121,15 @@ Vector<T>& Vector<T>::operator=(Vector<T>&& other) {
         _size = other._size;
         _capacity = other._capacity;
 
-        other.deallocate();
     }
 
     return *this;
 };
 
 template <typename T>
-void Vector<T>::reserve(std::size_t capacity) {
-    if (capacity > _capacity) {
-        T* new_data = allocate(capacity);
-
-        for (std::size_t i = 0; i < _size; ++i) {
-            new (new_data + i) T(std::move(_data[i]));              // move the elements to the new array
-            //_data[i].~T();                                         // call the destructor for the old elements
-        }
-        
-        deallocate(_data);                                         // deallocate the old array
-
-        _data = new_data;
-        _capacity = capacity;
-    }
-};
-
-template <typename T>
 void Vector<T>::pushBack(const T& value) {
     if (_size == _capacity) {
-        allocate(_capacity == 0 ? 1 : _capacity * 2);    //  double memory if full, but first 1
+        reserve(_capacity == 0 ? 1 : _capacity * 2);    //  double memory if full, but first 1
     }
 
     new (_data + _size) T(value);
@@ -168,17 +155,15 @@ T* Vector<T>::end() const {
 }
 
 template<typename T>
-void Vector<T>::print(std::ostream& os) const {
+void operator<<(std::ostream& os, Vector<T>& vec) {
     os << "[";
-    for (std::size_t i = 0; i < _size; ++i) {
-        if constexpr (std::is_same_v<T, std::variant<int, double, std::string>>) {
-            std::visit([&os](const auto& v){ os << v; }, _data[i]);
-        } else {
-            os << _data[i];
-        }
-        if (i != _size - 1) {
+    for (std::size_t i = 0; i < vec.size(); ++i) {
+        os << vec[i];
+
+        if (i != vec.size() - 1) {
             os << ", ";
         }
+        
     }
     os << "]" << std::endl;
 }

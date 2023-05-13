@@ -2,6 +2,11 @@
 
 #include <iostream>
 
+struct RatingData {
+    std::string id;
+    float rank = 0;
+    int count = 0;
+};
 
 template <typename T>
 class Vector {
@@ -15,6 +20,12 @@ public:
             new (_data + i) T(*it++);
         }
     };
+
+    Vector(Vector& other, int start, int end) : _size(end - start), _capacity(end - start), _data(reinterpret_cast<T*>(new char[(end - start) * sizeof(T)])) {
+        for (int i = start; i < end; ++i) {
+            new (_data + i - start) T(other[i]);
+        }
+    }
 // i known what im doing
     Vector(Vector& other) : _size(other._size), _capacity(other._capacity), _data(reinterpret_cast<T*>(new char[other._capacity * sizeof(T)])) {//   copy
         for (std::size_t i = 0; i < _size; ++i) {

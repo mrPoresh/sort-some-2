@@ -30,7 +30,6 @@ set(SOURCES
 set(HEADERS
     inc/overload.hh
     inc/vector.hh
-    inc/object.hh
     inc/core.hh
 )
 

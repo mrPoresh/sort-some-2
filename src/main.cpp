@@ -1,10 +1,8 @@
 #include <ctime>
 
 #include "../inc/overload.hh"
-#include "../inc/object.hh"
 #include "../inc/core.hh"
 
-#include <vector>
 
 struct Data {
     std::string id;
@@ -12,56 +10,45 @@ struct Data {
     int count = 0;
 };
 
-void operator<<(std::ostream& os, Data& data) {
+void operator<<(std::ostream& os, RatingData& data) {
     os << "[ ";
     os << data.id << " " << data.rank << " " << data.count;
     os << " ]" << std::endl;
 }
 
-void readData(const char* fileName, int maxLines, Vector<Data>& vector) {
-    std::ifstream inputFileStream(fileName);
-
-    if (inputFileStream) {
-        std::string line;
-        std::string headerLine;
-        int lineCount = 0;
-        vector.reserve(maxLines);
-
-        std::getline(inputFileStream, headerLine);          // dont forget about header line!
-        std::stringstream _ss(headerLine);
-        std::string headerValue;
-
-        while (std::getline(inputFileStream, line) && lineCount < maxLines) {
-            std::stringstream ss(line);
-            Data data;
-
-            ss >> data.id;
-            ss >> data.rank;
-            ss >> data.count;
-
-            vector.pushBack(data);
-            lineCount++;
-        }
-    }
-};
-
 int main() {
+    clock_t timeA = clock();
     std::cout << "* Used memory on programm init: " << memoryUsage << std::endl;
 
-    //int maxLines = 10;
+    int maxLines = 1295000;     //  max 1295000
     auto filePath = "/home/tony/PWR/Cplusplus/sort-some-2/input_rating.tsv";
-    //std::string fileOut = "/home/tony/PWR/Cplusplus/sort-some-2/output_rating.txt";
+    auto fileOut = "/home/tony/PWR/Cplusplus/sort-some-2/output_rating.txt";
 
-    clock_t timeA = clock();
+    Core* core = new Core();
+    Vector<RatingData>* ratingVector = new Vector<RatingData>();
 
-    { Vector<Data> vec;
+    clock_t timeE = clock();
+    core->readRatingData(filePath, maxLines, *ratingVector);
+    clock_t timeF = clock();
+    std::cout << "* Reading data in memory Time: " << static_cast<double>(timeF - timeE) / CLOCKS_PER_SEC << "s" << std::endl;
 
-    readData(filePath, 1000000, vec);
+    clock_t timeC = clock();
+    //core->quickSort(*ratingVector, 1);
+    //core->mergeSort(*ratingVector, 1);
+    core->introSort(*ratingVector, 2);
+    clock_t timeD = clock();
+    std::cout << "* Sorting Time: " << static_cast<double>(timeD - timeC) / CLOCKS_PER_SEC << "s" << std::endl;
+
     std::cout << "* Max used memory: " << memoryUsage << std::endl;
+    //std::cout << *ratingVector;
 
+    clock_t timeG = clock();
+    core->writeRatingDataInFile(fileOut, *ratingVector);
+    clock_t timeH = clock();
+    std::cout << "* Write data in file Time: " << static_cast<double>(timeH - timeG) / CLOCKS_PER_SEC << "s" << std::endl;
 
-    //std::cout << vec;
-    }
+    delete ratingVector;
+    delete core;
 
     clock_t timeB = clock();
     std::cout << "* Total time: " << static_cast<double>(timeB - timeA) / CLOCKS_PER_SEC << "s" << std::endl;

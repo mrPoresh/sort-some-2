@@ -8,6 +8,20 @@ struct RatingData {
     int count = 0;
 };
 
+struct NameData {
+    std::string id;
+    std::string primaryTitle;
+    std::string originalTitle;
+};
+
+struct OutData {
+    std::string id;
+    std::string primaryTitle;
+    std::string originalTitle;
+    float rank = 0;
+    int count = 0;
+};
+
 template <typename T>
 class Vector {
 public:

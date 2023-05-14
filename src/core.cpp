@@ -181,6 +181,44 @@ void Core::heapSort(Vector<RatingData>& ratingVector, int low, int high, int fie
     }
 };
 
+int Core::binarySearch(Vector<NameData>& nameVector, const std::string& id) {
+    int first = 0; int last = nameVector.size() - 1;
+    
+    while (first <= last) {
+        int middle = (first + last) / 2;
+        if (nameVector[middle].id == id) {
+            return middle;
+        } else if (nameVector[middle].id < id) {
+            first = middle + 1;
+        } else {
+            last = middle - 1;
+        }
+    }
+    return -1;
+};
+
+Vector<OutData>* Core::makeOut(Vector<RatingData>& ratingVector, Vector<NameData>& nameVector) {
+    Vector<OutData>* outVector = new Vector<OutData>();
+    outVector->reserve(ratingVector.size());
+
+    for (const auto& item : ratingVector) {
+        int position = binarySearch(nameVector, item.id);
+        if (position != -1) {
+            OutData data;
+
+            data.id = nameVector[position].id;
+            data.originalTitle = nameVector[position].originalTitle;
+            data.primaryTitle = nameVector[position].primaryTitle;
+            data.rank = item.rank;
+            data.count = item.count;
+
+            outVector->pushBack(data);
+        }
+    }
+
+    return outVector;
+};
+
 void Core::readRatingData(const char* fileName, int maxLines, Vector<RatingData>& ratingVector) {
     std::ifstream inputFileStream(fileName);
 
@@ -208,12 +246,77 @@ void Core::readRatingData(const char* fileName, int maxLines, Vector<RatingData>
     }
 };
 
+void Core::readNameData(const char* fileName, int maxLines, Vector<NameData>& nameVector) {
+    std::ifstream inputFileStream(fileName);
+
+    if (inputFileStream) {
+        std::string line;
+        std::string headerLine;
+        int lineCount = 0;
+        nameVector.reserve(maxLines);
+
+        std::getline(inputFileStream, headerLine);          // dont forget about header line!
+        std::stringstream _ss(headerLine);
+        std::string headerValue;
+
+        while (std::getline(inputFileStream, line) && lineCount < maxLines) {
+            std::stringstream ss(line);
+            std::string temp1;
+            std::string temp2;
+            NameData data;
+
+            /* ss >> data.id;
+            ss >> temp;
+            ss >> data.primaryTitle;
+            ss >> data.originalTitle; */
+
+            std::getline(ss, temp1, '\t');  // Read the first column
+            std::getline(ss, temp2, '\t'); // Read the second column
+            std::getline(ss, data.primaryTitle, '\t'); // Read the third column, including spaces
+            std::getline(ss, data.originalTitle, '\t'); // Read the fourth column
+
+            for (char c : temp1) {
+                if (c != ' ') {
+                    data.id += c;
+                }
+            }
+
+            nameVector.pushBack(data);
+            lineCount++;
+        }
+    }
+};
+
 void Core::writeRatingDataInFile(const char* filePath, Vector<RatingData>& ratingVector) {
     std::ofstream outputFileStream(filePath);
 
     if (outputFileStream) {
         for (const auto& item : ratingVector) {
             outputFileStream << item.id << " " << item.rank << " " << item.count << "\n";
+        }
+
+        outputFileStream.close();
+    }
+};
+
+void Core::writeNameDataInFile(const char* filePath, Vector<NameData>& nameVector) {
+    std::ofstream outputFileStream(filePath);
+
+    if (outputFileStream) {
+        for (const auto& item : nameVector) {
+            outputFileStream << item.id << " " << item.primaryTitle << " " << item.originalTitle << "\n";
+        }
+
+        outputFileStream.close();
+    }
+};
+
+void Core::writeOutDataInFile(const char* filePath, Vector<OutData>& outVector) {
+    std::ofstream outputFileStream(filePath);
+
+    if (outputFileStream) {
+        for (const auto& item : outVector) {
+            outputFileStream << item.id << " | " << item.primaryTitle << " | " << item.originalTitle << " | " << item.rank << " | " << item.count << "\n";
         }
 
         outputFileStream.close();

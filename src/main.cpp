@@ -16,19 +16,36 @@ void operator<<(std::ostream& os, RatingData& data) {
     os << " ]" << std::endl;
 }
 
+void operator<<(std::ostream& os, NameData& data) {
+    os << "[ ";
+    os << data.id << " " << data.primaryTitle << " " << data.originalTitle;
+    os << " ]" << std::endl;
+}
+
+void operator<<(std::ostream& os, OutData& data) {
+    os << "[ ";
+    os << data.id << " " << data.primaryTitle << " " << data.originalTitle << " " << data.rank << " " << data.count;
+    os << " ]" << std::endl;
+}
+
 int main() {
     clock_t timeA = clock();
     std::cout << "* Used memory on programm init: " << memoryUsage << std::endl;
 
     int maxLines = 1295000;     //  max 1295000
-    auto filePath = "/home/tony/PWR/Cplusplus/sort-some-2/input_rating.tsv";
-    auto fileOut = "/home/tony/PWR/Cplusplus/sort-some-2/output_rating.txt";
+    auto ratingfilePath = "/home/tony/PWR/Cplusplus/sort-some-2/input_rating.tsv";
+    auto nameFilePath = "/home/tony/PWR/Cplusplus/sort-some-2/input_name.txt";
+    auto ratingOutPath = "/home/tony/PWR/Cplusplus/sort-some-2/output_rating.txt";
+    auto nameOutPath = "/home/tony/PWR/Cplusplus/sort-some-2/output_name.txt";
+    auto outPath = "/home/tony/PWR/Cplusplus/sort-some-2/out.txt";
 
     Core* core = new Core();
     Vector<RatingData>* ratingVector = new Vector<RatingData>();
+    Vector<NameData>* nameVector = new Vector<NameData>();
 
     clock_t timeE = clock();
-    core->readRatingData(filePath, maxLines, *ratingVector);
+    core->readRatingData(ratingfilePath, maxLines, *ratingVector);
+    core->readNameData(nameFilePath, maxLines, *nameVector);
     clock_t timeF = clock();
     std::cout << "* Reading data in memory Time: " << static_cast<double>(timeF - timeE) / CLOCKS_PER_SEC << "s" << std::endl;
 
@@ -39,14 +56,22 @@ int main() {
     clock_t timeD = clock();
     std::cout << "* Sorting Time: " << static_cast<double>(timeD - timeC) / CLOCKS_PER_SEC << "s" << std::endl;
 
+    Vector<OutData>* outVector = core->makeOut(*ratingVector, *nameVector);
+
     std::cout << "* Max used memory: " << memoryUsage << std::endl;
     //std::cout << *ratingVector;
+    //std::cout << *nameVector;
+    //std::cout << *outVector;
 
     clock_t timeG = clock();
-    core->writeRatingDataInFile(fileOut, *ratingVector);
+    core->writeRatingDataInFile(ratingOutPath, *ratingVector);
+    core->writeNameDataInFile(nameOutPath, *nameVector);
+    core->writeOutDataInFile(outPath, *outVector);
     clock_t timeH = clock();
     std::cout << "* Write data in file Time: " << static_cast<double>(timeH - timeG) / CLOCKS_PER_SEC << "s" << std::endl;
 
+    delete outVector;
+    delete nameVector;
     delete ratingVector;
     delete core;
 

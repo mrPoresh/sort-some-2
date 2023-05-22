@@ -52,7 +52,7 @@ int main() {
     clock_t timeC = clock();
     //core->quickSort(*ratingVector, 1);
     //core->mergeSort(*ratingVector, 1);
-    core->introSort(*ratingVector, 2);
+    core->introSort(*ratingVector, 1);
     clock_t timeD = clock();
     std::cout << "* Sorting Time: " << static_cast<double>(timeD - timeC) / CLOCKS_PER_SEC << "s" << std::endl;
 

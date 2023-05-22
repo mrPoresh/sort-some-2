@@ -1,6 +1,3 @@
 build/
-input_name.txt
-input_rating.tsv
-out.txt
-output_name.txt
-output_rating.txt
+*.txt
+*.tsv
